@@ -41,7 +41,7 @@ export default function ConsultarVentas() {
             <div className="table-wrap">
               <table className="tabla">
                 <thead>
-                  <tr><th>ID</th><th>Hora</th><th>Trabajador</th><th>Puesto</th><th>Total</th><th>Pago</th><th>Boleta</th><th></th></tr>
+                  <tr><th>ID</th><th>Hora</th><th>Trabajador</th><th>Puesto</th><th>Total</th><th>Boleta</th><th></th></tr>
                 </thead>
                 <tbody>
                   {ventas.map(v => (
@@ -51,7 +51,6 @@ export default function ConsultarVentas() {
                       <td>{v.trabajador_nombre}</td>
                       <td>{v.puesto}</td>
                       <td><strong>S/ {parseFloat(v.total).toFixed(2)}</strong></td>
-                      <td><span className="badge badge-blue">{v.metodo_pago}</span></td>
                       <td><span className={`badge ${v.boleta_impresa ? 'badge-green' : 'badge-gray'}`}>{v.boleta_impresa ? 'Sí' : 'No'}</span></td>
                       <td><button className="btn-sm btn-outline" onClick={() => setSelected(v)}>👁️ Ver</button></td>
                     </tr>
@@ -68,7 +67,6 @@ export default function ConsultarVentas() {
                 <h3>Detalle Venta #{selected.id}</h3>
                 <p><b>Trabajador:</b> {selected.trabajador_nombre} — {selected.puesto}</p>
                 <p><b>Fecha:</b> {new Date(selected.fecha_hora).toLocaleString('es-PE')}</p>
-                <p><b>Pago:</b> {selected.metodo_pago}</p>
                 <table className="tabla" style={{marginTop:'12px'}}>
                   <thead><tr><th>Producto</th><th>Cant.</th><th>P.Unit.</th><th>Sub.</th></tr></thead>
                   <tbody>

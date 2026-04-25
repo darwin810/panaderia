@@ -57,7 +57,6 @@ export default function NuevaVenta() {
             <div className="success-details">
               <div className="detail-row"><span>ID Venta</span><strong>#{success.id}</strong></div>
               <div className="detail-row"><span>Total</span><strong>S/ {parseFloat(success.total).toFixed(2)}</strong></div>
-              <div className="detail-row"><span>Pago</span><strong>{success.metodo_pago}</strong></div>
               <div className="detail-row"><span>Hora</span><strong>{new Date(success.fecha_hora).toLocaleTimeString('es-PE')}</strong></div>
             </div>
             <div className="success-btns">
@@ -121,16 +120,7 @@ export default function NuevaVenta() {
                     <span>TOTAL</span><span>S/ {total.toFixed(2)}</span>
                   </div>
 
-                  <div className="pago-section">
-                    <label>Método de pago:</label>
-                    <div className="pago-opts">
-                      {['efectivo','yape','plin','tarjeta'].map(m => (
-                        <button key={m} className={`pago-opt ${metodoPago === m ? 'active' : ''}`} onClick={() => setMetodoPago(m)}>
-                          {m.charAt(0).toUpperCase() + m.slice(1)}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
+
 
                   <label className="boleta-check">
                     <input type="checkbox" checked={imprimirBoleta} onChange={e => setImprimirBoleta(e.target.checked)} />
