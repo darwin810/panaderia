@@ -46,13 +46,13 @@ export default function ConsultarVentas() {
                 <tbody>
                   {ventas.map(v => (
                     <tr key={v.id}>
-                      <td>#{v.id}</td>
-                      <td>{new Date(v.fecha_hora).toLocaleTimeString('es-PE')}</td>
-                      <td>{v.trabajador_nombre}</td>
-                      <td>{v.puesto}</td>
-                      <td><strong>S/ {parseFloat(v.total).toFixed(2)}</strong></td>
-                      <td><span className={`badge ${v.boleta_impresa ? 'badge-green' : 'badge-gray'}`}>{v.boleta_impresa ? 'Sí' : 'No'}</span></td>
-                      <td><button className="btn-sm btn-outline" onClick={() => setSelected(v)}>👁️ Ver</button></td>
+                      <td data-label="ID">#{v.id}</td>
+                      <td data-label="Hora">{new Date(v.fecha_hora).toLocaleTimeString('es-PE')}</td>
+                      <td data-label="Trabajador">{v.trabajador_nombre}</td>
+                      <td data-label="Puesto">{v.puesto}</td>
+                      <td data-label="Total"><strong>S/ {parseFloat(v.total).toFixed(2)}</strong></td>
+                      <td data-label="Boleta"><span className={`badge ${v.boleta_impresa ? 'badge-green' : 'badge-gray'}`}>{v.boleta_impresa ? 'Sí' : 'No'}</span></td>
+                      <td data-label="Acción"><button className="btn-sm btn-outline" onClick={() => setSelected(v)}>👁️ Ver</button></td>
                     </tr>
                   ))}
                 </tbody>
@@ -72,10 +72,10 @@ export default function ConsultarVentas() {
                   <tbody>
                     {selected.items?.map((i, idx) => (
                       <tr key={idx}>
-                        <td>{i.nombre}</td>
-                        <td>{i.cantidad}</td>
-                        <td>S/ {parseFloat(i.precio).toFixed(2)}</td>
-                        <td>S/ {parseFloat(i.subtotal).toFixed(2)}</td>
+                        <td data-label="Producto">{i.nombre}</td>
+                        <td data-label="Cant.">{i.cantidad}</td>
+                        <td data-label="P.Unit.">S/ {parseFloat(i.precio).toFixed(2)}</td>
+                        <td data-label="Sub.">S/ {parseFloat(i.subtotal).toFixed(2)}</td>
                       </tr>
                     ))}
                   </tbody>

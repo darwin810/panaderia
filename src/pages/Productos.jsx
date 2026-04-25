@@ -87,12 +87,12 @@ export default function Productos() {
                 <tbody>
                   {productos.map(p => (
                     <tr key={p.id}>
-                      <td>#{p.id}</td>
-                      <td>{p.nombre}</td>
-                      <td>S/ {parseFloat(p.precio).toFixed(2)}</td>
-                      <td><span className="badge badge-blue">{p.categoria}</span></td>
-                      <td><span className={`badge ${p.activo ? 'badge-green' : 'badge-red'}`}>{p.activo ? 'Activo' : 'Inactivo'}</span></td>
-                      <td>
+                      <td data-label="ID">#{p.id}</td>
+                      <td data-label="Nombre">{p.nombre}</td>
+                      <td data-label="Precio">S/ {parseFloat(p.precio).toFixed(2)}</td>
+                      <td data-label="Categoría"><span className="badge badge-blue">{p.categoria}</span></td>
+                      <td data-label="Estado"><span className={`badge ${p.activo ? 'badge-green' : 'badge-red'}`}>{p.activo ? 'Activo' : 'Inactivo'}</span></td>
+                      <td data-label="Acciones">
                         <button className="btn-sm btn-outline" onClick={() => abrirModal(p)}>✏️</button>
                         <button className="btn-sm btn-danger" onClick={() => eliminar(p.id)}>🗑️</button>
                       </td>

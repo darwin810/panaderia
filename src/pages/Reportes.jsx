@@ -85,7 +85,7 @@ const ReporteTabla = ({ cols, rows }) => (
   <div className="table-wrap">
     <table className="tabla">
       <thead><tr>{cols.map(c => <th key={c}>{c}</th>)}</tr></thead>
-      <tbody>{rows.map((r, i) => <tr key={i}>{r.map((c, j) => <td key={j}>{c}</td>)}</tr>)}</tbody>
+      <tbody>{rows.map((r, i) => <tr key={i}>{r.map((c, j) => <td key={j} data-label={cols[j]}>{c}</td>)}</tr>)}</tbody>
     </table>
   </div>
 )
