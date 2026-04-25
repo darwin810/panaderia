@@ -1,13 +1,13 @@
 :root {
   /* FoodTech Enterprise Light Theme */
-  --primary: #f97316;       /* Vibrant Orange */
-  --primary-dark: #ea580c;
-  --primary-light: #ffedd5;
-  --bg: #f8fafc;            /* Slate 50 */
+  --primary: #c8831a;       
+  --primary-dark: #a66814;
+  --primary-light: #fdf6ed;
+  --bg: #faf8f5;            
   --surface: #ffffff;
-  --border: #e2e8f0;        /* Slate 200 */
-  --text: #0f172a;          /* Slate 900 */
-  --text-muted: #64748b;    /* Slate 500 */
+  --border: #e5e0d8;        
+  --text: #2d2416;          
+  --text-muted: #7a6a55;    
   
   --green: #10b981;
   --green-light: #d1fae5;
@@ -133,8 +133,7 @@ button { font-family: inherit; }
 /* LOGIN SCREEN */
 .login-bg { 
   min-height: 100vh; display: flex; align-items: center; justify-content: center; 
-  background: var(--bg); padding: 24px; 
-  background-image: radial-gradient(var(--border) 1px, transparent 1px); background-size: 24px 24px;
+  background: linear-gradient(135deg, #c8831a 0%, #a66814 100%); padding: 24px; 
 }
 .login-card { 
   background: var(--surface); border-radius: 24px; padding: 48px; 
