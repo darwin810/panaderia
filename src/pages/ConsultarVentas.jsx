@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import Navbar from '../components/Navbar'
 import api from '../services/api'
 import { useAuth } from '../context/AuthContext'
+import { imprimirBoleta } from '../utils/imprimirBoleta'
 
 export default function ConsultarVentas() {
   const { user } = useAuth()
@@ -9,6 +10,7 @@ export default function ConsultarVentas() {
   const [loading, setLoading] = useState(false)
   const [fecha, setFecha] = useState(new Date().toISOString().split('T')[0])
   const [selected, setSelected] = useState(null)
+  const [loadingDetalle, setLoadingDetalle] = useState(false)
 
   const cargar = async () => {
     setLoading(true)
@@ -19,6 +21,20 @@ export default function ConsultarVentas() {
   }
 
   useEffect(() => { cargar() }, [fecha])
+
+  // Cargar detalle completo (con items) al seleccionar una venta
+  const verDetalle = async (v) => {
+    setLoadingDetalle(true)
+    try {
+      const { data } = await api.get(`/ventas/${v.id}`)
+      setSelected(data)
+    } catch {
+      // fallback: usar datos básicos sin items
+      setSelected(v)
+    } finally {
+      setLoadingDetalle(false)
+    }
+  }
 
   const totalDia = ventas.reduce((s, v) => s + parseFloat(v.total), 0)
 
@@ -52,7 +68,7 @@ export default function ConsultarVentas() {
                       <td data-label="Puesto">{v.puesto}</td>
                       <td data-label="Total"><strong>S/ {parseFloat(v.total).toFixed(2)}</strong></td>
                       <td data-label="Boleta"><span className={`badge ${v.boleta_impresa ? 'badge-green' : 'badge-gray'}`}>{v.boleta_impresa ? 'Sí' : 'No'}</span></td>
-                      <td data-label="Acción"><button className="btn-sm btn-outline" onClick={() => setSelected(v)}>👁️ Ver</button></td>
+              <td data-label="Acción"><button className="btn-sm btn-outline" onClick={() => verDetalle(v)}>👁️ Ver</button></td>
                     </tr>
                   ))}
                 </tbody>
@@ -61,12 +77,22 @@ export default function ConsultarVentas() {
             </div>
           )}
 
-          {selected && (
+          {loadingDetalle && (
+            <div className="modal-bg">
+              <div className="modal" style={{textAlign:'center', padding:'48px'}}>
+                <div style={{fontSize:'2rem', marginBottom:'12px'}}>⏳</div>
+                <p>Cargando detalle...</p>
+              </div>
+            </div>
+          )}
+
+          {selected && !loadingDetalle && (
             <div className="modal-bg" onClick={() => setSelected(null)}>
               <div className="modal" onClick={e => e.stopPropagation()}>
                 <h3>Detalle Venta #{selected.id}</h3>
                 <p><b>Trabajador:</b> {selected.trabajador_nombre} — {selected.puesto}</p>
                 <p><b>Fecha:</b> {new Date(selected.fecha_hora).toLocaleString('es-PE')}</p>
+                <p><b>Pago:</b> {(selected.metodo_pago || 'efectivo').toUpperCase()}</p>
                 <table className="tabla" style={{marginTop:'12px'}}>
                   <thead><tr><th>Producto</th><th>Cant.</th><th>P.Unit.</th><th>Sub.</th></tr></thead>
                   <tbody>
@@ -81,7 +107,13 @@ export default function ConsultarVentas() {
                   </tbody>
                 </table>
                 <div className="carrito-total"><span>TOTAL</span><span>S/ {parseFloat(selected.total).toFixed(2)}</span></div>
-                <button className="btn-secondary btn-full" style={{marginTop:'12px'}} onClick={() => setSelected(null)}>Cerrar</button>
+                <button
+                  className="btn-print-boleta"
+                  onClick={() => imprimirBoleta(selected)}
+                >
+                  🖨️ Imprimir Boleta
+                </button>
+                <button className="btn-secondary btn-full" style={{marginTop:'10px'}} onClick={() => setSelected(null)}>Cerrar</button>
               </div>
             </div>
           )}

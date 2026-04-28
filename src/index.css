@@ -204,8 +204,25 @@ button { font-family: inherit; }
 .ci-qty span { min-width: 24px; text-align: center; font-weight: 700; font-size: 1rem; }
 .ci-sub { font-weight: 800; color: var(--primary); min-width: 80px; text-align: right; font-size: 1.1rem; }
 .carrito-total { display: flex; justify-content: space-between; align-items: center; padding: 20px 0; border-top: 2px dashed var(--border); font-size: 1.5rem; font-weight: 800; }
-.boleta-check { display: flex; align-items: center; gap: 12px; font-size: 1rem; font-weight: 500; cursor: pointer; padding: 16px; background: var(--bg); border-radius: 12px; border: 1px solid var(--border); }
-.boleta-check input { width: 20px; height: 20px; accent-color: var(--primary); cursor: pointer; }
+.boleta-check { display: flex; align-items: center; gap: 12px; font-size: 1rem; font-weight: 500; cursor: pointer; padding: 14px 16px; background: var(--bg); border-radius: 12px; border: 1.5px solid var(--border); transition: all 0.2s; user-select: none; }
+.boleta-check input { width: 20px; height: 20px; accent-color: var(--primary); cursor: pointer; flex-shrink: 0; }
+.boleta-check.boleta-active { background: var(--primary-light); border-color: var(--primary); color: var(--primary-dark); font-weight: 700; }
+
+/* MÉTODO DE PAGO */
+.metodo-pago-group { display: flex; flex-direction: column; gap: 8px; }
+.metodo-pago-label { font-size: 0.85rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
+.metodo-pago-opts { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+.metodo-btn { padding: 10px 8px; border-radius: 10px; border: 1.5px solid var(--border); background: var(--surface); cursor: pointer; font-size: 0.88rem; font-weight: 600; color: var(--text-muted); transition: all 0.18s; display: flex; align-items: center; justify-content: center; gap: 5px; }
+.metodo-btn:hover { border-color: var(--primary); color: var(--primary); background: var(--primary-light); }
+.metodo-btn.active { background: var(--primary); color: white; border-color: var(--primary-dark); box-shadow: 0 4px 8px rgba(200,131,26,0.25); }
+
+/* BOTÓN IMPRIMIR BOLETA */
+.btn-print-boleta { background: #1e40af; color: white; border: none; padding: 12px 20px; border-radius: var(--radius-sm); cursor: pointer; font-size: 0.95rem; font-weight: 700; transition: all 0.2s; box-shadow: 0 4px 6px rgba(30,64,175,0.25); display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; margin-top: 12px; }
+.btn-print-boleta:hover { background: #1d4ed8; box-shadow: 0 6px 12px rgba(30,64,175,0.3); transform: translateY(-1px); }
+.btn-print-boleta:active { transform: scale(0.98); }
+
+/* SUCCESS SCREEN BUTTONS */
+.success-btns { display: flex; flex-direction: column; gap: 10px; width: 100%; }
 
 /* TABLAS EMPRESARIALES */
 .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 32px; flex-wrap: wrap; gap: 16px; }
@@ -303,4 +320,124 @@ button { font-family: inherit; }
   .menu-card { padding: 24px; flex-direction: row; align-items: center; gap: 20px; }
   .menu-card-icon { margin-bottom: 0; width: 60px; height: 60px; font-size: 2rem; border-radius: 16px; flex-shrink: 0; }
   .menu-card h3 { font-size: 1.15rem; margin-bottom: 4px; }
+}
+
+/* ── ALERTS ── */
+.alert { padding: 14px 18px; border-radius: var(--radius-sm); font-weight: 600; font-size: 0.95rem; }
+.alert-success { background: var(--green-light); color: #065f46; border: 1px solid #6ee7b7; }
+.alert-error   { background: var(--red-light);   color: #991b1b; border: 1px solid #fca5a5; }
+.empty-state   { padding: 48px; text-align: center; color: var(--text-muted); font-size: 1rem; font-weight: 500; }
+.loading       { padding: 48px; text-align: center; color: var(--text-muted); font-size: 1rem; }
+.modal-btns    { display: flex; gap: 12px; margin-top: 24px; }
+.modal-btns button { flex: 1; }
+
+/* ── PRODUCT ADMIN GRID ── */
+.productos-admin-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 20px;
+}
+.prod-admin-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex; flex-direction: column;
+}
+.prod-admin-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-lg); }
+.prod-admin-card.inactivo { opacity: 0.55; }
+
+.prod-admin-img-wrap {
+  position: relative;
+  width: 100%; aspect-ratio: 1/1;
+  background: var(--bg);
+  overflow: hidden;
+}
+.prod-admin-img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+.prod-admin-card:hover .prod-admin-img { transform: scale(1.05); }
+.prod-img-del {
+  position: absolute; top: 8px; right: 8px;
+  background: rgba(0,0,0,0.55); color: white;
+  border: none; border-radius: 8px;
+  padding: 4px 8px; font-size: 0.8rem;
+  cursor: pointer; opacity: 0; transition: opacity 0.2s;
+}
+.prod-admin-img-wrap:hover .prod-img-del { opacity: 1; }
+
+.prod-admin-info { padding: 14px 16px 8px; flex: 1; }
+.prod-admin-nombre { font-weight: 700; font-size: 1rem; margin-bottom: 8px; color: var(--text); }
+.prod-admin-cat { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 8px; }
+.prod-admin-precio { font-size: 1.3rem; font-weight: 800; color: var(--primary); }
+
+.prod-admin-actions {
+  display: flex; gap: 8px;
+  padding: 12px 16px;
+  border-top: 1px solid var(--border);
+  background: var(--bg);
+}
+.prod-admin-actions button { flex: 1; }
+
+/* ── IMAGE UPLOAD AREA (modal) ── */
+.img-upload-area {
+  display: flex; flex-direction: column; align-items: center; gap: 10px;
+  margin-bottom: 20px;
+}
+.img-upload-placeholder {
+  width: 100%; min-height: 140px;
+  border: 2px dashed var(--border);
+  border-radius: var(--radius);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 6px; cursor: pointer; background: var(--bg);
+  transition: all 0.2s; color: var(--text-muted);
+  font-weight: 600; font-size: 0.9rem;
+  padding: 20px;
+}
+.img-upload-placeholder:hover { border-color: var(--primary); background: var(--primary-light); color: var(--primary-dark); }
+.img-upload-icon { font-size: 2rem; }
+.img-upload-hint { font-size: 0.78rem; font-weight: 400; opacity: 0.7; }
+
+.img-preview-wrap {
+  position: relative; width: 140px; height: 140px;
+}
+.img-preview {
+  width: 140px; height: 140px;
+  object-fit: cover; border-radius: var(--radius);
+  border: 2px solid var(--border); box-shadow: var(--shadow-sm);
+}
+.img-remove-btn {
+  position: absolute; top: -10px; right: -10px;
+  background: var(--red); color: white; border: none;
+  border-radius: 50%; width: 26px; height: 26px;
+  font-size: 0.75rem; cursor: pointer; font-weight: 700;
+  box-shadow: var(--shadow-sm);
+}
+.img-change-btn {
+  font-size: 0.85rem; font-weight: 600; color: var(--primary);
+  cursor: pointer; text-decoration: underline;
+}
+.modal-producto { max-width: 460px; }
+
+/* ── POS CARD IMAGES ── */
+.prod-card-img {
+  width: 100%; aspect-ratio: 1/1;
+  object-fit: cover; border-radius: calc(var(--radius) - 4px);
+  margin-bottom: 10px;
+}
+.prod-card-emoji {
+  font-size: 2.5rem; margin-bottom: 10px;
+  background: var(--bg); width: 100%; aspect-ratio: 1/1;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: calc(var(--radius) - 4px);
+}
+
+@media (max-width: 768px) {
+  .productos-admin-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+  .prod-admin-actions { flex-direction: column; }
+  .modal-producto { max-width: 100%; }
 }

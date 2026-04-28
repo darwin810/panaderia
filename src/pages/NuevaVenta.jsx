@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react'
 import Navbar from '../components/Navbar'
 import api from '../services/api'
+import { imprimirBoleta } from '../utils/imprimirBoleta'
 
 export default function NuevaVenta() {
   const [productos, setProductos] = useState([])
   const [carrito, setCarrito] = useState([])
   const [metodoPago, setMetodoPago] = useState('efectivo')
-  const [imprimirBoleta, setImprimirBoleta] = useState(false)
+  const [printBoleta, setPrintBoleta] = useState(false)
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(null)
   const [error, setError] = useState('')
@@ -40,8 +41,29 @@ export default function NuevaVenta() {
     if (!carrito.length) { setError('Agrega al menos un producto'); return }
     setLoading(true); setError('')
     try {
-      const { data } = await api.post('/ventas', { items: carrito, metodo_pago: metodoPago, boleta_impresa: imprimirBoleta })
-      setSuccess(data.venta); setCarrito([])
+      const { data } = await api.post('/ventas', {
+        items: carrito,
+        metodo_pago: metodoPago,
+        boleta_impresa: printBoleta
+      })
+
+      const ventaCompleta = {
+        ...data.venta,
+        items: carrito.map(i => ({
+          nombre: i.nombre_producto,
+          cantidad: i.cantidad,
+          precio: i.precio_unitario,
+          subtotal: i.subtotal
+        }))
+      }
+
+      setSuccess(ventaCompleta)
+      setCarrito([])
+
+      // ✅ Imprimir boleta automáticamente si estaba marcado
+      if (printBoleta) {
+        imprimirBoleta(ventaCompleta)
+      }
     } catch (err) { setError(err.response?.data?.mensaje || 'Error al registrar') }
     finally { setLoading(false) }
   }
@@ -58,8 +80,12 @@ export default function NuevaVenta() {
               <div className="detail-row"><span>ID Venta</span><strong>#{success.id}</strong></div>
               <div className="detail-row"><span>Total</span><strong>S/ {parseFloat(success.total).toFixed(2)}</strong></div>
               <div className="detail-row"><span>Hora</span><strong>{new Date(success.fecha_hora).toLocaleTimeString('es-PE')}</strong></div>
+              <div className="detail-row"><span>Pago</span><strong>{(success.metodo_pago || 'efectivo').toUpperCase()}</strong></div>
             </div>
             <div className="success-btns">
+              <button onClick={() => imprimirBoleta(success)} className="btn-print-boleta">
+                🖨️ Reimprimir Boleta
+              </button>
               <button onClick={() => setSuccess(null)} className="btn-primary">🛒 Nueva Venta</button>
               <button onClick={() => window.location.href = '/'} className="btn-secondary">🏠 Inicio</button>
             </div>
@@ -85,6 +111,10 @@ export default function NuevaVenta() {
             <div className="productos-grid">
               {filtrados.map(p => (
                 <div key={p.id} className="prod-card" onClick={() => agregar(p)}>
+                  {p.imagen_url
+                    ? <img src={p.imagen_url} alt={p.nombre} className="prod-card-img" onError={e => { e.target.style.display='none' }} />
+                    : <div className="prod-card-emoji">🥖</div>
+                  }
                   <span className="prod-nombre">{p.nombre}</span>
                   <span className="prod-cat">{p.categoria}</span>
                   <span className="prod-precio">S/ {parseFloat(p.precio).toFixed(2)}</span>
@@ -120,11 +150,30 @@ export default function NuevaVenta() {
                     <span>TOTAL</span><span>S/ {total.toFixed(2)}</span>
                   </div>
 
+                  {/* Método de pago */}
+                  <div className="metodo-pago-group">
+                    <label className="metodo-pago-label">💳 Método de pago</label>
+                    <div className="metodo-pago-opts">
+                      {['efectivo', 'yape', 'plin', 'tarjeta'].map(m => (
+                        <button
+                          key={m}
+                          className={`metodo-btn ${metodoPago === m ? 'active' : ''}`}
+                          onClick={() => setMetodoPago(m)}
+                        >
+                          {m === 'efectivo' ? '💵' : m === 'yape' ? '📱' : m === 'plin' ? '🟢' : '💳'} {m.charAt(0).toUpperCase() + m.slice(1)}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
 
-
-                  <label className="boleta-check">
-                    <input type="checkbox" checked={imprimirBoleta} onChange={e => setImprimirBoleta(e.target.checked)} />
-                    🖨️ Imprimir boleta
+                  {/* Checkbox imprimir boleta */}
+                  <label className={`boleta-check ${printBoleta ? 'boleta-active' : ''}`}>
+                    <input
+                      type="checkbox"
+                      checked={printBoleta}
+                      onChange={e => setPrintBoleta(e.target.checked)}
+                    />
+                    <span>🖨️ Imprimir boleta al registrar</span>
                   </label>
 
                   {error && <div className="alert alert-error">{error}</div>}
