@@ -29,7 +29,7 @@ const saleController = {
   },
   getMySalesToday: async (req, res) => {
     try {
-      const today = new Date().toISOString().split('T')[0]
+      const today = new Date().toLocaleDateString('en-CA', { timeZone: 'America/Santiago' })
       const result = await SaleModel.getTodaySalesByUser(req.user.id, today)
       res.json(result)
     } catch (err) { res.status(500).json({ mensaje: err.message }) }

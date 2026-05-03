@@ -12,6 +12,7 @@
     "axios": "^1.15.2",
     "bcryptjs": "^2.4.3",
     "cloudinary": "^1.41.3",
+    "compression": "^1.8.1",
     "cors": "^2.8.6",
     "dotenv": "^16.6.1",
     "express": "^4.22.1",
@@ -19,12 +20,15 @@
     "helmet": "^8.1.0",
     "hpp": "^0.2.3",
     "jsonwebtoken": "^9.0.3",
+    "lucide-react": "^1.14.0",
     "multer": "^2.1.1",
     "multer-storage-cloudinary": "^4.0.0",
     "pg": "^8.20.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "react-router-dom": "^6.30.3"
+    "react-router-dom": "^6.30.3",
+    "sonner": "^2.0.7",
+    "xss-clean": "^0.1.4"
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^4.7.0",

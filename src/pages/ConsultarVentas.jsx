@@ -8,7 +8,13 @@ export default function ConsultarVentas() {
   const { user } = useAuth()
   const [ventas, setVentas] = useState([])
   const [loading, setLoading] = useState(false)
-  const [fecha, setFecha] = useState(new Date().toISOString().split('T')[0])
+  const getLocalDate = () => {
+    const d = new Date()
+    d.setMinutes(d.getMinutes() - d.getTimezoneOffset())
+    return d.toISOString().split('T')[0]
+  }
+
+  const [fecha, setFecha] = useState(getLocalDate())
   const [selected, setSelected] = useState(null)
   const [loadingDetalle, setLoadingDetalle] = useState(false)
 
@@ -45,12 +51,12 @@ export default function ConsultarVentas() {
         <div className="page-wrap">
           <div className="page-header">
             <h2>📋 Consultar Ventas</h2>
-            <input type="date" value={fecha} onChange={e => setFecha(e.target.value)} className="input-date" />
+            <input type="date" value={fecha} max={getLocalDate()} onChange={e => setFecha(e.target.value)} className="input-date" />
           </div>
 
           <div className="stats-row">
             <div className="stat-box"><span className="stat-num">{ventas.length}</span><span className="stat-lbl">Ventas</span></div>
-            <div className="stat-box highlight"><span className="stat-num">S/ {totalDia.toFixed(2)}</span><span className="stat-lbl">Total del día</span></div>
+            <div className="stat-box highlight"><span className="stat-num">$ {totalDia.toFixed(2)}</span><span className="stat-lbl">Total del día</span></div>
           </div>
 
           {loading ? <div className="loading">Cargando...</div> : (
@@ -63,12 +69,12 @@ export default function ConsultarVentas() {
                   {ventas.map(v => (
                     <tr key={v.id}>
                       <td data-label="ID">#{v.id}</td>
-                      <td data-label="Hora">{new Date(v.fecha_hora).toLocaleTimeString('es-PE')}</td>
+                      <td data-label="Hora">{new Date(v.fecha_hora).toLocaleTimeString('es-CL')}</td>
                       <td data-label="Trabajador">{v.trabajador_nombre}</td>
                       <td data-label="Puesto">{v.puesto}</td>
-                      <td data-label="Total"><strong>S/ {parseFloat(v.total).toFixed(2)}</strong></td>
+                      <td data-label="Total"><strong>$ {parseFloat(v.total).toFixed(2)}</strong></td>
                       <td data-label="Boleta"><span className={`badge ${v.boleta_impresa ? 'badge-green' : 'badge-gray'}`}>{v.boleta_impresa ? 'Sí' : 'No'}</span></td>
-              <td data-label="Acción"><button className="btn-sm btn-outline" onClick={() => verDetalle(v)}>👁️ Ver</button></td>
+                      <td data-label="Acción"><button className="btn-sm btn-outline" onClick={() => verDetalle(v)}>👁️ Ver</button></td>
                     </tr>
                   ))}
                 </tbody>
@@ -79,8 +85,8 @@ export default function ConsultarVentas() {
 
           {loadingDetalle && (
             <div className="modal-bg">
-              <div className="modal" style={{textAlign:'center', padding:'48px'}}>
-                <div style={{fontSize:'2rem', marginBottom:'12px'}}>⏳</div>
+              <div className="modal" style={{ textAlign: 'center', padding: '48px' }}>
+                <div style={{ fontSize: '2rem', marginBottom: '12px' }}>⏳</div>
                 <p>Cargando detalle...</p>
               </div>
             </div>
@@ -91,29 +97,29 @@ export default function ConsultarVentas() {
               <div className="modal" onClick={e => e.stopPropagation()}>
                 <h3>Detalle Venta #{selected.id}</h3>
                 <p><b>Trabajador:</b> {selected.trabajador_nombre} — {selected.puesto}</p>
-                <p><b>Fecha:</b> {new Date(selected.fecha_hora).toLocaleString('es-PE')}</p>
+                <p><b>Fecha:</b> {new Date(selected.fecha_hora).toLocaleString('es-CL')}</p>
                 <p><b>Pago:</b> {(selected.metodo_pago || 'efectivo').toUpperCase()}</p>
-                <table className="tabla" style={{marginTop:'12px'}}>
+                <table className="tabla" style={{ marginTop: '12px' }}>
                   <thead><tr><th>Producto</th><th>Cant.</th><th>P.Unit.</th><th>Sub.</th></tr></thead>
                   <tbody>
                     {selected.items?.map((i, idx) => (
                       <tr key={idx}>
                         <td data-label="Producto">{i.nombre}</td>
                         <td data-label="Cant.">{i.cantidad}</td>
-                        <td data-label="P.Unit.">S/ {parseFloat(i.precio).toFixed(2)}</td>
-                        <td data-label="Sub.">S/ {parseFloat(i.subtotal).toFixed(2)}</td>
+                        <td data-label="P.Unit.">$ {parseFloat(i.precio).toFixed(2)}</td>
+                        <td data-label="Sub.">$ {parseFloat(i.subtotal).toFixed(2)}</td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
-                <div className="carrito-total"><span>TOTAL</span><span>S/ {parseFloat(selected.total).toFixed(2)}</span></div>
+                <div className="carrito-total"><span>TOTAL</span><span>$ {parseFloat(selected.total).toFixed(2)}</span></div>
                 <button
                   className="btn-print-boleta"
                   onClick={() => imprimirBoleta(selected)}
                 >
                   🖨️ Imprimir Boleta
                 </button>
-                <button className="btn-secondary btn-full" style={{marginTop:'10px'}} onClick={() => setSelected(null)}>Cerrar</button>
+                <button className="btn-secondary btn-full" style={{ marginTop: '10px' }} onClick={() => setSelected(null)}>Cerrar</button>
               </div>
             </div>
           )}

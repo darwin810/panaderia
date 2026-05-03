@@ -5,11 +5,11 @@ const reportController = {
     try {
       const { desde, hasta } = req.query
       const res2 = await db.query(
-        `SELECT DATE(fecha_hora) as fecha, COUNT(*) as cantidad_ventas, SUM(total) as total_ingresos
+        `SELECT DATE(fecha_hora AT TIME ZONE 'UTC' AT TIME ZONE 'America/Santiago') as fecha, COUNT(*) as cantidad_ventas, SUM(total) as total_ingresos
          FROM ventas
-         WHERE ($1::date IS NULL OR DATE(fecha_hora) >= $1::date)
-           AND ($2::date IS NULL OR DATE(fecha_hora) <= $2::date)
-         GROUP BY DATE(fecha_hora) ORDER BY fecha DESC`,
+         WHERE ($1::date IS NULL OR DATE(fecha_hora AT TIME ZONE 'UTC' AT TIME ZONE 'America/Santiago') >= $1::date)
+           AND ($2::date IS NULL OR DATE(fecha_hora AT TIME ZONE 'UTC' AT TIME ZONE 'America/Santiago') <= $2::date)
+         GROUP BY DATE(fecha_hora AT TIME ZONE 'UTC' AT TIME ZONE 'America/Santiago') ORDER BY fecha DESC`,
         [desde || null, hasta || null]
       )
       res.json(res2.rows)
@@ -20,7 +20,7 @@ const reportController = {
       const { fecha } = req.query
       const res2 = await db.query(
         `SELECT puesto, COUNT(*) as cantidad_ventas, SUM(total) as total_ingresos
-         FROM ventas WHERE ($1::date IS NULL OR DATE(fecha_hora) = $1::date)
+         FROM ventas WHERE ($1::date IS NULL OR DATE(fecha_hora AT TIME ZONE 'UTC' AT TIME ZONE 'America/Santiago') = $1::date)
          GROUP BY puesto ORDER BY total_ingresos DESC`,
         [fecha || null]
       )
@@ -33,7 +33,7 @@ const reportController = {
       const res2 = await db.query(
         `SELECT u.nombre as trabajador, v.puesto, COUNT(*) as cantidad_ventas, SUM(v.total) as total_ingresos
          FROM ventas v JOIN usuarios u ON v.usuario_id=u.id
-         WHERE ($1::date IS NULL OR DATE(v.fecha_hora) = $1::date)
+         WHERE ($1::date IS NULL OR DATE(v.fecha_hora AT TIME ZONE 'UTC' AT TIME ZONE 'America/Santiago') = $1::date)
          GROUP BY u.nombre, v.puesto ORDER BY total_ingresos DESC`,
         [fecha || null]
       )
@@ -46,7 +46,7 @@ const reportController = {
       const res2 = await db.query(
         `SELECT vi.nombre_producto, SUM(vi.cantidad) as total_cantidad, SUM(vi.subtotal) as total_ingresos
          FROM venta_items vi JOIN ventas v ON vi.venta_id=v.id
-         WHERE ($1::date IS NULL OR DATE(v.fecha_hora) = $1::date)
+         WHERE ($1::date IS NULL OR DATE(v.fecha_hora AT TIME ZONE 'UTC' AT TIME ZONE 'America/Santiago') = $1::date)
          GROUP BY vi.nombre_producto ORDER BY total_cantidad DESC LIMIT 10`,
         [fecha || null]
       )
@@ -59,11 +59,25 @@ const reportController = {
       const res2 = await db.query(
         `SELECT COALESCE(SUM(total),0) as total_general, COUNT(*) as total_ventas, COALESCE(AVG(total),0) as promedio_venta
          FROM ventas
-         WHERE ($1::date IS NULL OR DATE(fecha_hora) >= $1::date)
-           AND ($2::date IS NULL OR DATE(fecha_hora) <= $2::date)`,
+         WHERE ($1::date IS NULL OR DATE(fecha_hora AT TIME ZONE 'UTC' AT TIME ZONE 'America/Santiago') >= $1::date)
+           AND ($2::date IS NULL OR DATE(fecha_hora AT TIME ZONE 'UTC' AT TIME ZONE 'America/Santiago') <= $2::date)`,
         [desde || null, hasta || null]
       )
       res.json(res2.rows[0])
+    } catch (err) { res.status(500).json({ mensaje: err.message }) }
+  },
+  roboHormigaAlerts: async (req, res) => {
+    try {
+      // Detect employees with consistent cash shortages (diferencia < 0)
+      const res2 = await db.query(`
+        SELECT u.nombre as trabajador, COUNT(c.id) as cantidad_faltantes, SUM(c.diferencia) as total_faltante
+        FROM cierre_caja c
+        JOIN usuarios u ON c.usuario_id = u.id
+        WHERE c.diferencia < 0
+        GROUP BY u.nombre
+        ORDER BY total_faltante ASC
+      `)
+      res.json(res2.rows)
     } catch (err) { res.status(500).json({ mensaje: err.message }) }
   }
 }

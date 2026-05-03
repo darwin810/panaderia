@@ -30,7 +30,8 @@ const productController = {
         nombre,
         precio: parseFloat(precio),
         categoria,
-        imagen_url
+        imagen_url,
+        stock: req.body.stock !== undefined ? parseInt(req.body.stock) : 0
       })
       res.status(201).json(p)
     } catch (err) { res.status(500).json({ mensaje: err.message }) }
@@ -56,7 +57,8 @@ const productController = {
         precio:    parseFloat(req.body.precio ?? existing.precio),
         categoria: req.body.categoria ?? existing.categoria,
         activo:    req.body.activo !== undefined ? req.body.activo === 'true' || req.body.activo === true : existing.activo,
-        imagen_url
+        imagen_url,
+        stock:     req.body.stock !== undefined ? parseInt(req.body.stock) : existing.stock
       })
       res.json(p)
     } catch (err) { res.status(500).json({ mensaje: err.message }) }

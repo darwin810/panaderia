@@ -4,11 +4,16 @@ const cors = require('cors')
 const helmet = require('helmet')
 const rateLimit = require('express-rate-limit')
 const hpp = require('hpp')
+const xss = require('xss-clean')
+const compression = require('compression')
 
 const app = express()
 
 // Seguridad: Headers HTTP
 app.use(helmet())
+
+// Optimización: Comprimir las respuestas HTTP
+app.use(compression())
 
 // Seguridad: Limitar peticiones (Prevención de fuerza bruta/DDoS)
 const limiter = rateLimit({
@@ -31,11 +36,15 @@ app.use(express.json({ limit: '10kb' })) // Límite de payload para evitar ataqu
 // Seguridad: Prevenir contaminación de parámetros HTTP
 app.use(hpp())
 
+// Seguridad: Sanitizar datos contra XSS
+app.use(xss())
+
 app.use('/api/auth',      require('./routes/authRoutes'))
 app.use('/api/productos', require('./routes/productRoutes'))
 app.use('/api/ventas',    require('./routes/saleRoutes'))
 app.use('/api/cierre',    require('./routes/cierreRoutes'))
 app.use('/api/reportes',  require('./routes/reportRoutes'))
+app.use('/api/usuarios',  require('./routes/userRoutes'))
 
 app.use((err, req, res, next) => {
   console.error(err.stack)
@@ -46,3 +55,4 @@ const PORT = process.env.PORT || 3001
 app.listen(PORT, () => console.log(`🚀 Servidor protegido y ejecutándose en puerto ${PORT}`))
 
 module.exports = app
+// trigger restart

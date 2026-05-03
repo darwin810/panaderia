@@ -7,5 +7,6 @@ router.get('/por-puesto', authMiddleware, adminMiddleware, ctrl.salesByPuesto)
 router.get('/por-trabajador', authMiddleware, adminMiddleware, ctrl.salesByWorker)
 router.get('/productos-top', authMiddleware, adminMiddleware, ctrl.topProducts)
 router.get('/ingresos-totales', authMiddleware, adminMiddleware, ctrl.totalIncome)
+router.get('/robo-hormiga', authMiddleware, adminMiddleware, ctrl.roboHormigaAlerts)
 
 module.exports = router

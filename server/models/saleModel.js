@@ -17,6 +17,10 @@ const SaleModel = {
            VALUES ($1,$2,$3,$4,$5,$6)`,
           [venta.id, item.producto_id, item.nombre_producto, item.cantidad, item.precio_unitario, item.subtotal]
         )
+        await client.query(
+          `UPDATE productos SET stock = GREATEST(stock - $1, 0) WHERE id = $2`,
+          [item.cantidad, item.producto_id]
+        )
       }
       await client.query('COMMIT')
       return venta
@@ -43,7 +47,7 @@ const SaleModel = {
       WHERE 1=1
     `
     const params = []
-    if (fecha) { params.push(fecha); query += ` AND DATE(v.fecha_hora) = $${params.length}` }
+    if (fecha) { params.push(fecha); query += ` AND DATE(v.fecha_hora AT TIME ZONE 'UTC' AT TIME ZONE 'America/Santiago') = $${params.length}` }
     if (usuario_id) { params.push(usuario_id); query += ` AND v.usuario_id = $${params.length}` }
     if (puesto) { params.push(puesto); query += ` AND v.puesto = $${params.length}` }
     query += ' GROUP BY v.id, u.nombre ORDER BY v.fecha_hora DESC'
@@ -72,7 +76,7 @@ const SaleModel = {
   getTodaySalesByUser: async (usuario_id, fecha) => {
     const res = await db.query(
       `SELECT COALESCE(SUM(total),0) as total_dia, COUNT(*) as cantidad_ventas
-       FROM ventas WHERE usuario_id=$1 AND DATE(fecha_hora)=$2`,
+       FROM ventas WHERE usuario_id=$1 AND DATE(fecha_hora AT TIME ZONE 'UTC' AT TIME ZONE 'America/Santiago')=$2`,
       [usuario_id, fecha]
     )
     return res.rows[0]

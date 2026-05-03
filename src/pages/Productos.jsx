@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import Navbar from '../components/Navbar'
+import { toast } from 'sonner'
 import api from '../services/api'
 
 const PLACEHOLDER = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 80 80"><rect width="80" height="80" fill="%23f5f0e8"/><text x="50%" y="54%" dominant-baseline="middle" text-anchor="middle" font-size="32">🥖</text></svg>'
@@ -9,23 +10,22 @@ export default function Productos() {
   const [loading, setLoading] = useState(true)
   const [showModal, setShowModal] = useState(false)
   const [editando, setEditando] = useState(null)
-  const [form, setForm] = useState({ nombre: '', precio: '', categoria: '' })
+  const [form, setForm] = useState({ nombre: '', precio: '', categoria: '', stock: '' })
   const [imagenFile, setImagenFile] = useState(null)
   const [imagenPreview, setImagenPreview] = useState(null)
   const [uploading, setUploading] = useState(false)
-  const [msg, setMsg] = useState({ type: '', text: '' })
   const fileRef = useRef()
 
   const cargar = async () => {
     setLoading(true)
-    const { data } = await api.get('/productos')
+    const { data } = await api.get(`/productos?t=${Date.now()}`)
     setProductos(data); setLoading(false)
   }
   useEffect(() => { cargar() }, [])
 
   const abrirModal = (p = null) => {
     setEditando(p)
-    setForm(p ? { nombre: p.nombre, precio: p.precio, categoria: p.categoria } : { nombre: '', precio: '', categoria: '' })
+    setForm(p ? { nombre: p.nombre, precio: p.precio, categoria: p.categoria, stock: p.stock || 0 } : { nombre: '', precio: '', categoria: '', stock: '' })
     setImagenFile(null)
     setImagenPreview(p?.imagen_url || null)
     setShowModal(true)
@@ -59,19 +59,20 @@ export default function Productos() {
       fd.append('nombre', form.nombre)
       fd.append('precio', form.precio)
       fd.append('categoria', form.categoria)
+      fd.append('stock', form.stock || 0)
       if (imagenFile) fd.append('imagen', imagenFile)
 
       if (editando) {
         fd.append('activo', 'true')
         await api.put(`/productos/${editando.id}`, fd, { headers: { 'Content-Type': 'multipart/form-data' } })
-        setMsg({ type: 'success', text: '✅ Producto actualizado' })
+        toast.success('Producto actualizado exitosamente')
       } else {
         await api.post('/productos', fd, { headers: { 'Content-Type': 'multipart/form-data' } })
-        setMsg({ type: 'success', text: '✅ Producto creado' })
+        toast.success('Producto creado exitosamente')
       }
       cerrarModal(); cargar()
     } catch (err) {
-      setMsg({ type: 'error', text: err.response?.data?.mensaje || 'Error al guardar' })
+      toast.error(err.response?.data?.mensaje || 'Error al guardar el producto')
     } finally {
       setUploading(false)
     }
@@ -81,13 +82,13 @@ export default function Productos() {
     if (!p.imagen_url) return
     if (!confirm('¿Quitar imagen del producto?')) return
     await api.delete(`/productos/${p.id}/imagen`)
-    setMsg({ type: 'success', text: '🗑️ Imagen eliminada' }); cargar()
+    toast.success('Imagen eliminada'); cargar()
   }
 
   const eliminar = async (id) => {
     if (!confirm('¿Eliminar este producto?')) return
     await api.delete(`/productos/${id}`)
-    setMsg({ type: 'success', text: 'Eliminado' }); cargar()
+    toast.success('Producto eliminado'); cargar()
   }
 
   const categorias = [...new Set(productos.map(p => p.categoria))]
@@ -101,13 +102,6 @@ export default function Productos() {
             <h2>📦 Productos</h2>
             <button className="btn-primary" onClick={() => abrirModal()}>+ Nuevo Producto</button>
           </div>
-
-          {msg.text && (
-            <div className={`alert alert-${msg.type}`} style={{ marginBottom: '20px' }}>
-              {msg.text}
-              <button onClick={() => setMsg({ type: '', text: '' })} style={{ float: 'right', background: 'none', border: 'none', cursor: 'pointer', fontSize: '1rem' }}>✕</button>
-            </div>
-          )}
 
           {/* ── MODAL CREAR / EDITAR ── */}
           {showModal && (
@@ -151,13 +145,17 @@ export default function Productos() {
                     <input value={form.nombre} onChange={e => setForm({ ...form, nombre: e.target.value })} required placeholder="Ej: Pan de molde" />
                   </div>
                   <div className="form-group">
-                    <label>Precio (S/)</label>
+                    <label>Precio ($)</label>
                     <input type="number" step="0.01" min="0" value={form.precio} onChange={e => setForm({ ...form, precio: e.target.value })} required placeholder="0.00" />
                   </div>
                   <div className="form-group">
                     <label>Categoría</label>
                     <input value={form.categoria} onChange={e => setForm({ ...form, categoria: e.target.value })} list="cats" required placeholder="Ej: Panes, Tortas..." />
                     <datalist id="cats">{categorias.map(c => <option key={c} value={c} />)}</datalist>
+                  </div>
+                  <div className="form-group">
+                    <label>Stock</label>
+                    <input type="number" min="0" value={form.stock} onChange={e => setForm({ ...form, stock: e.target.value })} required placeholder="Ej: 10" />
                   </div>
 
                   <div className="modal-btns">
@@ -193,7 +191,10 @@ export default function Productos() {
                       <span className="badge badge-blue">{p.categoria}</span>
                       <span className={`badge ${p.activo ? 'badge-green' : 'badge-red'}`}>{p.activo ? 'Activo' : 'Inactivo'}</span>
                     </div>
-                    <div className="prod-admin-precio">S/ {parseFloat(p.precio).toFixed(2)}</div>
+                    <div className="prod-admin-precio">$ {parseFloat(p.precio).toFixed(2)}</div>
+                    <div className="prod-admin-stock" style={{ fontSize: '0.85rem', color: '#666', marginTop: '4px' }}>
+                      📦 Stock: <strong>{p.stock}</strong>
+                    </div>
                   </div>
                   <div className="prod-admin-actions">
                     <button className="btn-sm btn-outline" onClick={() => abrirModal(p)}>✏️ Editar</button>

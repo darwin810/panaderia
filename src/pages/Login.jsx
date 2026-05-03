@@ -1,22 +1,22 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import { toast } from 'sonner'
 
 export default function Login() {
   const [form, setForm] = useState({ usuario: '', password: '' })
-  const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const { login } = useAuth()
   const navigate = useNavigate()
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    setError(''); setLoading(true)
+    setLoading(true)
     try {
       await login(form.usuario, form.password)
       navigate('/')
     } catch (err) {
-      setError(err.response?.data?.mensaje || 'Error al iniciar sesión')
+      toast.error(err.response?.data?.mensaje || 'Error al iniciar sesión')
     } finally { setLoading(false) }
   }
 
@@ -29,7 +29,7 @@ export default function Login() {
           <p>Ingresa tus credenciales</p>
         </div>
         <form onSubmit={handleSubmit}>
-          {error && <div className="alert alert-error">{error}</div>}
+
           <div className="form-group">
             <label>Usuario</label>
             <input type="text" value={form.usuario}

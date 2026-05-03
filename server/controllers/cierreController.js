@@ -4,7 +4,7 @@ const SaleModel = require('../models/saleModel')
 const cierreController = {
   getSummary: async (req, res) => {
     try {
-      const today = new Date().toISOString().split('T')[0]
+      const today = new Date().toLocaleDateString('en-CA', { timeZone: 'America/Santiago' })
       const summary = await SaleModel.getTodaySalesByUser(req.user.id, today)
       res.json({ fecha: today, total_sistema: parseFloat(summary.total_dia), cantidad_ventas: parseInt(summary.cantidad_ventas) })
     } catch (err) { res.status(500).json({ mensaje: err.message }) }
@@ -13,7 +13,7 @@ const cierreController = {
     try {
       const { efectivo_real } = req.body
       const { id: usuario_id, puesto } = req.user
-      const fecha = new Date().toISOString().split('T')[0]
+      const fecha = new Date().toLocaleDateString('en-CA', { timeZone: 'America/Santiago' })
       if (efectivo_real === undefined) return res.status(400).json({ mensaje: 'El efectivo real es requerido' })
 
       const existing = await CierreModel.getByFechaAndUser(fecha, usuario_id)
